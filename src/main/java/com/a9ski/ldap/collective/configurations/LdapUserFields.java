@@ -34,7 +34,7 @@ public class LdapUserFields {
 	@Value("description")
 	private String description = "description";
 
-	@Value("telephoneNumber ")
+	@Value("telephoneNumber")
 	private String telephoneNumber = "telephoneNumber ";
 
 	

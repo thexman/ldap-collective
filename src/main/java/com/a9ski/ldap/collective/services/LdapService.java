@@ -53,7 +53,7 @@ public class LdapService {
 	private String createUserSearchFilter(Set<String> userObjectClasses) {
 		if (ExtCollectionUtils.isNotEmpty(userObjectClasses)) {
 			return "(&" + userObjectClasses.stream()
-				.map(c -> "(" + c + ")")
+				.map(c -> "(objectClass=" + c + ")")
 				.collect(Collectors.joining()) + ")";
 		} else {
 			return "";
