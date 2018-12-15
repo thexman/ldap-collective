@@ -29,7 +29,6 @@ public class LdapServiceTest {
 		assertEquals("Albert Einstein", einstein.getCommonName());
 		assertEquals("Einstein", einstein.getSurname());
 		assertEquals("einstein@ldap.forumsys.com", einstein.getEmail());
-		assertEquals("314-159-2653", einstein.getTelephoneNumber());
 		assertEquals("einstein", einstein.getLogin());
 	}
 	

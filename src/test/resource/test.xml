@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<user>
+	<objectClasses>
+		<objectClass>top</objectClass>
+		<objectClass>person</objectClass>
+		<objectClass>posixAccount</objectClass>
+		<objectClass optional="true">inetOrgPerson</objectClass>
+		<objectClass optional="true">myObjectClass</objectClass>
+		<objectClass optional="true">pwdPolicy</objectClass>
+	</objectClasses>
+	<fields>
+		<field name="userPassword" type="string" multiple="false" objectClass="posixAccount">
+			<validators>
+				<validator type="regex" value="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&amp;])[A-Za-z\d@$!%*?&amp;]{8,10}$"/>
+			</validators>
+		</field>
+		
+		<field name="cn" type="string" multiple="false" objectClass="posixAccount">
+			<validators>
+				<validator type="regex" value="^[A-Z][a-zA-Z\s]*$"/>
+				<validator type="length" min="2" max="255"/>
+			</validators>
+		</field>
+		
+		<field name="sn" type="string" multiple="false" objectClass="person">
+			<validators>
+				<validator type="length" min="1" />
+			</validators>
+		</field>
+		
+		<field name="retirementAge" type="integer" objectClass="myObjectClass">
+			<validators>
+				<validator type="min" value="18"/>
+				<validator type="max" value="65"/>
+			</validators>
+		</field>
+		
+		<field name="height" type="float" objectClass="myObjectClass">
+			<validators>
+				<validator type="min" value="50.5"/>
+				<validator type="max" value="300.42"/>
+			</validators>
+		</field>
+		
+		<field oid="2.5.4.42" type="oid" objectClass="inetOrgPerson"/> <!-- givenName --> 
+		
+		<field oid="1.3.6.1.4.1.42.2.27.8.1.3" type="oid" objectClass="pwdPolicy"> <!--  pwdMaxAge in seconds -->
+			<validators>
+				<validator type="min" value="7776000"/>
+				<validator type="max" value="10368000"/>
+			</validators>
+		</field>
+		
+		
+	</fields>
+</user>

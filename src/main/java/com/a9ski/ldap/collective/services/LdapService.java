@@ -99,13 +99,11 @@ public class LdapService {
 	private User toUser(LDAPConnection ldapConnection, final ReadOnlyEntry e, boolean loadUserGroups) throws LDAPException {
 		return User.builder()
 			.commonName(e.getAttributeValue(userFields.getCommonName()))
-			.description(e.getAttributeValue(userFields.getDescription()))
 			.displayName(e.getAttributeValue(userFields.getDisplayName()))
 			.email(e.getAttributeValue(userFields.getEmail()))
 			.givenName(e.getAttributeValue(userFields.getGivenName()))
 			.login(e.getAttributeValue(userFields.getLogin()))
 			.surname(e.getAttributeValue(userFields.getSurname()))
-			.telephoneNumber(e.getAttributeValue(userFields.getTelephoneNumber()))
 			.build();
 	}
 	

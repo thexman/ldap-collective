@@ -11,8 +11,6 @@ public class User {
 	private String commonName; // cn
 	private String displayName; // cn
 	private String userPassword;
-	private String telephoneNumber;
-	private String description;
 	private String login;
 	private String email;
 }

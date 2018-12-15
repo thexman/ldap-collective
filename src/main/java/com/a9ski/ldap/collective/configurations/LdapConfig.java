@@ -38,4 +38,10 @@ public class LdapConfig {
 	@Value("ou=mathematicians,dc=example,dc=com")
 	private String groupBaseDn;
 //	private String groupSearchFilter;
+	
+	@Value("classpath:mappings/user.xml")
+	private String userMappingFile;
+	
+	@Value("classpath:mappings/group.xml")
+	private String groupMappingFile;
 }
