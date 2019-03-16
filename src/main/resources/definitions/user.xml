@@ -10,7 +10,7 @@
 		<objectClass optional="true">pwdPolicy</objectClass>
 	</objectClasses>
 	<fields>
-		<field name="userPassword" type="string" multiple="false" objectClass="posixAccount">
+		<field name="userPassword" type="string" multiple="false" objectClass="posixAccount" visibility="private">
 			<validators>
 				<validator type="regex" value="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&amp;])[A-Za-z\d@$!%*?&amp;]{8,10}$"/>
 			</validators>
@@ -29,7 +29,7 @@
 			</validators>
 		</field>
 		
-		<field name="retirementAge" type="integer" objectClass="myObjectClass">
+		<!--field name="retirementAge" type="integer" objectClass="myObjectClass">
 			<validators>
 				<validator type="min" value="18"/>
 				<validator type="max" value="65"/>
@@ -41,11 +41,11 @@
 				<validator type="min" value="50.5"/>
 				<validator type="max" value="300.42"/>
 			</validators>
-		</field>
+		</field-->
 		
 		<field oid="2.5.4.42" type="oid" objectClass="inetOrgPerson"/> <!-- givenName --> 
 		
-		<field oid="1.3.6.1.4.1.42.2.27.8.1.3" type="oid" objectClass="pwdPolicy"> <!--  pwdMaxAge in seconds -->
+		<field oid="1.3.6.1.4.1.42.2.27.8.1.3" type="oid" objectClass="pwdPolicy" visibility="private"> <!--  pwdMaxAge in seconds -->
 			<validators>
 				<validator type="min" value="7776000"/>
 				<validator type="max" value="10368000"/>

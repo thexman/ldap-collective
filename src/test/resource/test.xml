@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<user>
+<test>
 	<objectClasses>
 		<objectClass>top</objectClass>
 		<objectClass>person</objectClass>
@@ -10,7 +10,7 @@
 		<objectClass optional="true">pwdPolicy</objectClass>
 	</objectClasses>
 	<fields>
-		<field name="userPassword" type="string" multiple="false" objectClass="posixAccount">
+		<field name="userPassword" type="string" multiple="false" objectClass="posixAccount" visibility="private">
 			<validators>
 				<validator type="regex" value="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&amp;])[A-Za-z\d@$!%*?&amp;]{8,10}$"/>
 			</validators>
@@ -54,4 +54,4 @@
 		
 		
 	</fields>
-</user>
+</test>

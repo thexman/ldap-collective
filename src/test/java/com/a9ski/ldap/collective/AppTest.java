@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.stream.Collectors;
 
+import com.a9ski.ldap.collective.ldap.LdapFieldVisibility;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.LdapSyntax;
@@ -16,7 +17,7 @@ import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.junit.Test;
 
 import com.a9ski.ldap.collective.ldap.LdapFieldType;
-import com.a9ski.ldap.collective.ldap.UserMapping;
+import com.a9ski.ldap.collective.ldap.LdapEntryDefinition;
 import com.a9ski.ldap.collective.validators.LengthValidator;
 import com.a9ski.ldap.collective.validators.MaxValidator;
 import com.a9ski.ldap.collective.validators.MinValidator;
@@ -34,7 +35,7 @@ public class AppTest {
 	
 	@Test
 	public void testParsingObjectClasses() throws Exception {
-		final UserMapping m = mapper.readValue(getClass().getResourceAsStream("/test.xml"), UserMapping.class);
+		final LdapEntryDefinition m = mapper.readValue(getClass().getResourceAsStream("/test.xml"), LdapEntryDefinition.class);
 	    assertNotNull(m);
 	    assertNotNull(m.getObjectClasses());
 	    assertEquals(6, m.getObjectClasses().size());
@@ -45,7 +46,7 @@ public class AppTest {
 	
 	@Test
 	public void testParsingFields() throws Exception {
-		final UserMapping m = mapper.readValue(getClass().getResourceAsStream("/test.xml"), UserMapping.class);
+		final LdapEntryDefinition m = mapper.readValue(getClass().getResourceAsStream("/test.xml"), LdapEntryDefinition.class);
 	    assertNotNull(m);
 	    assertNotNull(m.getFields());
 	    assertEquals(7, m.getFields().size());
@@ -53,6 +54,7 @@ public class AppTest {
 	    int i = 0;
 	    assertEquals(LdapFieldType.STRING, m.getFields().get(i).getType());
 	    assertEquals("userPassword", m.getFields().get(i).getName());
+		assertEquals(LdapFieldVisibility.PRIVATE, m.getFields().get(i).getVisibility());
 	    assertNotNull(m.getFields().get(i).getValidators());	    
 	    assertEquals(1, m.getFields().get(i).getValidators().size());
 	    assertTrue(m.getFields().get(i).getValidators().get(0) instanceof RegExValidator);
@@ -61,6 +63,7 @@ public class AppTest {
 	    i++;
 	    assertEquals(LdapFieldType.STRING, m.getFields().get(i).getType());
 	    assertEquals("cn", m.getFields().get(i).getName());
+		assertEquals(LdapFieldVisibility.PUBLIC, m.getFields().get(i).getVisibility());
 	    assertNotNull(m.getFields().get(i).getValidators());
 	    assertEquals(2, m.getFields().get(i).getValidators().size());
 	    assertTrue(m.getFields().get(i).getValidators().get(0) instanceof RegExValidator);
@@ -72,6 +75,7 @@ public class AppTest {
 	    i++;
 	    assertEquals(LdapFieldType.STRING, m.getFields().get(i).getType());
 	    assertEquals("sn", m.getFields().get(i).getName());
+		assertEquals(LdapFieldVisibility.PUBLIC, m.getFields().get(i).getVisibility());
 	    assertNotNull(m.getFields().get(i).getValidators());
 	    assertEquals(1, m.getFields().get(i).getValidators().size());
 	    assertTrue(m.getFields().get(i).getValidators().get(0) instanceof LengthValidator);
@@ -81,6 +85,7 @@ public class AppTest {
 	    i++;
 	    assertEquals(LdapFieldType.INTEGER, m.getFields().get(i).getType());
 	    assertEquals("retirementAge", m.getFields().get(i).getName());
+		assertEquals(LdapFieldVisibility.PUBLIC, m.getFields().get(i).getVisibility());
 	    assertNotNull(m.getFields().get(i).getValidators());
 	    assertEquals(2, m.getFields().get(i).getValidators().size());
 	    assertTrue(m.getFields().get(i).getValidators().get(0) instanceof MinValidator);
@@ -91,6 +96,7 @@ public class AppTest {
 	    i++;
 	    assertEquals(LdapFieldType.FLOAT, m.getFields().get(i).getType());
 	    assertEquals("height", m.getFields().get(i).getName());
+		assertEquals(LdapFieldVisibility.PUBLIC, m.getFields().get(i).getVisibility());
 	    assertNotNull(m.getFields().get(i).getValidators());
 	    assertEquals(2, m.getFields().get(i).getValidators().size());
 	    assertTrue(m.getFields().get(i).getValidators().get(0) instanceof MinValidator);
@@ -100,10 +106,12 @@ public class AppTest {
 	    
 	    i++;
 	    assertEquals(LdapFieldType.OID, m.getFields().get(i).getType());
+		assertEquals(LdapFieldVisibility.PUBLIC, m.getFields().get(i).getVisibility());
 	    assertEquals("2.5.4.42", m.getFields().get(i).getOid());
 	    
 	    i++;
 	    assertEquals(LdapFieldType.OID, m.getFields().get(i).getType());
+		assertEquals(LdapFieldVisibility.PUBLIC, m.getFields().get(i).getVisibility());
 	    assertEquals("1.3.6.1.4.1.42.2.27.8.1.3", m.getFields().get(i).getOid());
 	    assertNotNull(m.getFields().get(i).getValidators());
 	    assertEquals(2, m.getFields().get(i).getValidators().size());
@@ -115,7 +123,7 @@ public class AppTest {
 	
 	@Test
 	public void testParsingMappingToFieldMap() throws Exception {
-		final UserMapping m = mapper.readValue(getClass().getResourceAsStream("/test.xml"), UserMapping.class);
+		final LdapEntryDefinition m = mapper.readValue(getClass().getResourceAsStream("/test.xml"), LdapEntryDefinition.class);
 	    assertNotNull(m);
 	    assertNotNull(m.getFields());
 	    assertFalse(m.getFieldsMap().isEmpty());

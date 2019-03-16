@@ -1,10 +1,11 @@
 package com.a9ski.ldap.collective.services;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.a9ski.ldap.collective.ldap.LdapEntry;
+import com.a9ski.ldap.collective.ldap.LdapEntryDefinition;
+import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,6 @@ import com.unboundid.ldap.sdk.BindRequest;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.ReadOnlyEntry;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
@@ -43,16 +43,16 @@ public class LdapService {
 	
 	
 	@Autowired
-	public LdapService(final LdapConfig ldapConfig, final LdapUserFields userFields) {
+	public LdapService(@NonNull final LdapConfig ldapConfig, final LdapUserFields userFields) {
 		this.ldapConfig = ldapConfig;
 		this.userFields = userFields;
-		this.userSearchFilter = createUserSearchFilter(ldapConfig.getUserObjectClasses());
+		this.userSearchFilter = createObjectClassesFilter(ldapConfig.getUserObjectClasses());
 		this.serverSet = new SingleServerSet(ldapConfig.getHost(), ldapConfig.getPort());
 	}
 	
-	private String createUserSearchFilter(Set<String> userObjectClasses) {
-		if (ExtCollectionUtils.isNotEmpty(userObjectClasses)) {
-			return "(&" + userObjectClasses.stream()
+	private String createObjectClassesFilter(Set<String> objectClasses) {
+		if (ExtCollectionUtils.isNotEmpty(objectClasses)) {
+			return "(&" + objectClasses.stream()
 				.map(c -> "(objectClass=" + c + ")")
 				.collect(Collectors.joining()) + ")";
 		} else {
@@ -60,6 +60,48 @@ public class LdapService {
 		}
 	}
 
+	public List<LdapEntry> search(@NonNull final LdapEntryDefinition definition, @NonNull final String search) throws LDAPException {
+		final String additionlFilter = createObjectClassesFilter(definition.getRequiredClasses());
+		return search(definition, search, additionlFilter);
+	}
+
+	public List<LdapEntry> search(@NonNull final LdapEntryDefinition definition, @NonNull final String search, @NonNull final String andFilter) throws LDAPException {
+		List<LdapEntry> result = null;
+		if (StringUtils.isNotBlank(search)) {
+			final String s = Filter.encodeValue(search);
+			final String orFilter = "(|" + definition.getSearchableFieldNames().stream()
+					.map(f -> String.format("(%s=*%s*)", f, s))
+					.collect(Collectors.joining()) + ")";
+			final String query;
+			if (StringUtils.isAnyBlank(andFilter, orFilter)) {
+				query = StringUtils.defaultIfBlank(orFilter, andFilter);
+			} else {
+				query = String.format("(&%s%s)", orFilter, andFilter);
+			}
+			if (StringUtils.isNotBlank(query)) {
+				result = searchByLdapFilter(definition, query);
+			}
+		}
+		return result;
+	}
+
+	public List<LdapEntry> searchByLdapFilter(final LdapEntryDefinition definition, String filter) throws LDAPException {
+		logger.debug("Searching for LDAP entities with filter: " + filter);
+		final List<LdapEntry> entries = new ArrayList<>();
+
+		try (final LDAPConnection ldapConnection = getConnection()) {
+			final SearchRequest searchRequest = new SearchRequest(ldapConfig.getUserBaseDn(), SearchScope.SUB, filter);
+			final SearchResult r = ldapConnection.search(searchRequest);
+			for (final SearchResultEntry e : r.getSearchEntries()) {
+				final LdapEntry entry = toEntry(e, definition);
+				entries.add(entry);
+			}
+
+			return entries;
+		}
+	}
+
+	@Deprecated
 	public List<User> searchUsers(String search) throws LDAPException {
 		final List<User> users = new ArrayList<>();
 		if (StringUtils.isNotBlank(search)) {
@@ -72,17 +114,17 @@ public class LdapService {
 		}
 		return users;
 	}
-	
-	private List<User> findUsers(final Filter filter) throws LDAPException, LDAPSearchException  {
+
+	@Deprecated
+	private List<User> findUsers(final Filter filter) throws LDAPException {
 		logger.debug("Searching for LDAP users with filter: " + filter.toString());
 		final List<User> users = new ArrayList<>();
-		final LDAPConnection ldapConnection = getBindedConnection();		
-		
-		try {			
+
+		try (final LDAPConnection ldapConnection = getConnection()) {
 			final SearchRequest searchRequest = new SearchRequest(ldapConfig.getUserBaseDn(), SearchScope.SUB, filter);
 			final SearchResult r = ldapConnection.search(searchRequest);			
 			for(final SearchResultEntry e : r.getSearchEntries()) {
-				final User user = toUser(ldapConnection, e, true);
+				final User user = toUser(e);
 				users.add(user);
 			}
 			
@@ -91,12 +133,19 @@ public class LdapService {
 //			}
 			
 			return users;
-		} finally {
-			ldapConnection.close();
 		}
 	}
-	
-	private User toUser(LDAPConnection ldapConnection, final ReadOnlyEntry e, boolean loadUserGroups) throws LDAPException {
+
+	private LdapEntry toEntry(final ReadOnlyEntry e, final LdapEntryDefinition d) {
+		final Map<String, String> values = new TreeMap<>();
+		for(final String f : d.getPublicFieldNames()) {
+			values.put(f, e.getAttributeValue(f));
+		}
+		return new LdapEntry(d, values);
+	}
+
+	@Deprecated
+	private User toUser(final ReadOnlyEntry e) {
 		return User.builder()
 			.commonName(e.getAttributeValue(userFields.getCommonName()))
 			.displayName(e.getAttributeValue(userFields.getDisplayName()))
@@ -107,7 +156,7 @@ public class LdapService {
 			.build();
 	}
 	
-	private LDAPConnection getBindedConnection() throws LDAPException {
+	private LDAPConnection getConnection() throws LDAPException {
 		final BindRequest bindRequest = new SimpleBindRequest(ldapConfig.getBindDn(), ldapConfig.getPassword());
 		final LDAPConnection ldapConnection = serverSet.getConnection();
 		

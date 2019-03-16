@@ -1,6 +1,7 @@
 package com.a9ski.ldap.collective.ldap;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.LdapSyntax;
@@ -26,6 +27,8 @@ public class LdapField {
 	@JsonProperty("type")
 	@JacksonXmlProperty(isAttribute = true)
 	private LdapFieldType type;
+
+	private LdapFieldVisibility visibility = LdapFieldVisibility.PUBLIC;
 	
 	@JsonProperty("oid")
 	@JacksonXmlProperty(isAttribute = true)
@@ -33,6 +36,22 @@ public class LdapField {
 	
 	@JsonProperty("validators")
 	private List<Validator> validators;
+
+	@JsonProperty("visibility")
+	@JacksonXmlProperty(isAttribute = true)
+	public void setVisibility(LdapFieldVisibility visibility) {
+		this.visibility = Optional.ofNullable(visibility).orElse(LdapFieldVisibility.PUBLIC);
+	}
+
+	@JsonProperty("visibility")
+	@JacksonXmlProperty(isAttribute = true)
+	public LdapFieldVisibility getVisibility() {
+		return this.visibility;
+	}
+
+	@JsonProperty("searchable")
+	@JacksonXmlProperty(isAttribute = true)
+	private boolean searchable = true;
 	
 	public boolean isValid(Object value) {
 		if (type == LdapFieldType.OID) {

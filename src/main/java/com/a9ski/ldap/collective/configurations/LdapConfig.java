@@ -39,9 +39,9 @@ public class LdapConfig {
 	private String groupBaseDn;
 //	private String groupSearchFilter;
 	
-	@Value("classpath:mappings/user.xml")
+	@Value("classpath:definitions/user.xml")
 	private String userMappingFile;
 	
-	@Value("classpath:mappings/group.xml")
+	@Value("classpath:definitions/group.xml")
 	private String groupMappingFile;
 }
